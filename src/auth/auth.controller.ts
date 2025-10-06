@@ -5,12 +5,11 @@ import {
   Res,
   HttpStatus,
   HttpException,
-  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from '@/decorators/customize';
-import { RegisterUserDto, verifyEmailDto } from './dto/auth.dto';
-import { Param } from 'generated/prisma/runtime/library';
+import { LoginDto, RegisterUserDto, verifyEmailDto } from './dto/auth.dto';
+import ms from 'ms';
 
 @Controller('auth')
 export class AuthController {
@@ -32,6 +31,25 @@ export class AuthController {
   async verifyEmail(@Body() verifyEmailDto: verifyEmailDto) {
     try {
       return await this.authService.verifyEmail(verifyEmailDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post('login')
+  @Public()
+  async login(@Body() loginDto: LoginDto, @Res() res) {
+    try {
+      const result = await this.authService.login(loginDto);
+
+      res.cookie('accessToken', result?.accessToken, {
+        // maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+        maxAge: ms('1d'),
+        httpOnly: true,
+        sameSite: 'strict',
+      });
+
+      return res.status(200).json(result);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

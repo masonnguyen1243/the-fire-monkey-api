@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
-import { RegisterUserDto, verifyEmailDto } from './dto/auth.dto';
-import { hashPasswordHelper } from '@/helpers/utils';
+import { LoginDto, RegisterUserDto, verifyEmailDto } from './dto/auth.dto';
+import { comparePasswordHelper, hashPasswordHelper } from '@/helpers/utils';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -82,5 +82,39 @@ export class AuthService {
     });
 
     return { success: true, message: 'Email verified successfully' };
+  }
+
+  async login(LoginDto: LoginDto) {
+    const { email, password } = LoginDto;
+
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      throw new BadRequestException('Invalid email or password');
+    }
+    if (!user.isActive) {
+      throw new BadRequestException('Please verify your email first');
+    }
+
+    const isPasswordValid = await comparePasswordHelper(
+      password,
+      user.password as string,
+    );
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid email or password');
+    }
+
+    const accessToken = this.jwtService.sign({
+      email: user.email,
+      sub: user.id,
+    });
+
+    const { password: _, ...rest } = user;
+
+    return {
+      success: true,
+      message: 'Logged in successfully',
+      user: rest,
+      accessToken,
+    };
   }
 }
