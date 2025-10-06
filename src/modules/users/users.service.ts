@@ -7,21 +7,6 @@ import { hashPasswordHelper } from '@/helpers/utils';
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
-    const users = await this.prisma.user.findMany();
-
-    return { message: 'Users fetched successfully', users };
-  }
-
-  async findOne(id: string) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user) {
-      throw new Error(`User with ID ${id} not found`);
-    }
-
-    return { message: 'User fetched successfully', user };
-  }
-
   async updateProfile(id: string, updateUserDto: UpdateUserDto) {
     const { name, password, address, phone } = updateUserDto;
     const user = await this.prisma.user.findUnique({ where: { id } });

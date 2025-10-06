@@ -28,24 +28,6 @@ export class UsersController {
     }
   }
 
-  @Get()
-  findAll() {
-    try {
-      return this.usersService.findAll();
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    try {
-      return this.usersService.findOne(id);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
   @Put('update')
   async updateProfile(
     @Req() req,
