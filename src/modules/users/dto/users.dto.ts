@@ -20,4 +20,9 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @ApiProperty({ example: 'https://cloudinary.com/avatar.jpg' })
+  @IsOptional()
+  @IsString()
+  avatar?: string;
 }

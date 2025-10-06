@@ -8,7 +8,7 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async updateProfile(id: string, updateUserDto: UpdateUserDto) {
-    const { name, password, address, phone } = updateUserDto;
+    const { name, password, address, phone, avatar } = updateUserDto;
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -25,6 +25,7 @@ export class UsersService {
         name: name ?? user.name,
         address: address ?? user.address,
         phone: phone ?? user.phone,
+        avatar: avatar ?? user.avatar,
         password: hashedPassword ?? user.password,
       },
     });
