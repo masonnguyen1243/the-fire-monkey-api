@@ -5,7 +5,9 @@ import {
   Res,
   HttpStatus,
   HttpException,
+  Get,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { Public } from '@/decorators/customize';
 import { LoginDto, RegisterUserDto, verifyEmailDto } from './dto/auth.dto';
@@ -50,6 +52,20 @@ export class AuthController {
       });
 
       return res.status(200).json(result);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Get('logout')
+  @Public()
+  async logout(@Res() res: Response) {
+    try {
+      res.clearCookie('accessToken');
+
+      return res
+        .status(200)
+        .json({ success: true, message: 'Logged out successfully' });
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
