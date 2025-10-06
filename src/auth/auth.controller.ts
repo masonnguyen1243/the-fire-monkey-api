@@ -1,18 +1,16 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
   Res,
   HttpStatus,
   HttpException,
+  Put,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from '@/decorators/customize';
-import { RegisterUserDto } from './dto/auth.dto';
+import { RegisterUserDto, verifyEmailDto } from './dto/auth.dto';
+import { Param } from 'generated/prisma/runtime/library';
 
 @Controller('auth')
 export class AuthController {
@@ -29,23 +27,13 @@ export class AuthController {
     }
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: any) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Post('verify-email')
+  @Public()
+  async verifyEmail(@Body() verifyEmailDto: verifyEmailDto) {
+    try {
+      return await this.authService.verifyEmail(verifyEmailDto);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }
